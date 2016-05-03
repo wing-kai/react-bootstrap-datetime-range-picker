@@ -1,0 +1,64 @@
+{
+  "name": "react-bootstrap-datetime-range-picker",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "browser": {
+    "react": "./node_modules/react/dist/react.min.js",
+    "react-dom": "./node_modules/react-dom/dist/react-dom.min.js"
+  },
+  "browserify-shim": {
+    "react": {
+      "exports": "global:React"
+    },
+    "react-dom": {
+      "exports": "global:ReactDOM"
+    }
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wing-kai/react-bootstrap-datetime-range-picker.git"
+  },
+  "keywords": [
+    "react",
+    "bootstrap",
+    "date",
+    "time",
+    "picker",
+    "datetimepicker"
+  ],
+  "author": "wing-kai",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wing-kai/react-bootstrap-datetime-range-picker/issues"
+  },
+  "homepage": "https://github.com/wing-kai/react-bootstrap-datetime-range-picker#readme",
+  "dependencies": {
+    "react": "^15.0.2",
+    "react-dom": "^15.0.2"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.7.4",
+    "babel-plugin-transform-object-rest-spread": "^6.6.5",
+    "babel-preset-react": "^6.5.0",
+    "browserify": "^13.0.0",
+    "browserify-shim": "^3.8.12",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^2.0.0-alpha",
+    "gulp-uglify": "^1.5.3",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
