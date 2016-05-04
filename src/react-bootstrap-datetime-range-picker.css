@@ -1,0 +1,71 @@
+.datetime-range-picker table.calendar td,
+.datetime-range-picker table.calendar th {
+    text-align: center;
+    font-size: 14px;
+}
+
+.datetime-range-picker table.calendar td,
+.datetime-range-picker table.calendar th {
+    border: none !important;
+}
+
+.datetime-range-picker .switch-month {
+    cursor: pointer;
+}
+
+.datetime-range-picker .switch-month:hover {
+    color: #aaa;
+}
+
+.datetime-range-picker .switch-month.disabled {
+    display: none;
+}
+
+.datetime-range-picker .time-slider {
+    display: flex;
+    height: 26px;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 14px;
+}
+
+.datetime-range-picker .time-slider div {
+    width: 50px;
+}
+
+.datetime-range-picker .time-slider input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    outline: none;
+}
+
+/* 轨道 */
+.datetime-range-picker .time-slider input[type=range]::-webkit-slider-runnable-track {
+    height: 6px;
+    background-color: #eee;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px #C4C4C4;
+}
+
+/* 滑块 */
+.datetime-range-picker .time-slider input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border-radius: 50px;
+    background: #fff;
+    height: 16px;
+    width: 16px;
+    border: solid 1px #C4C4C4;
+    margin-top: -5px;
+}
+
+.datetime-range-picker .time-slider input[type=range]:hover::-webkit-slider-thumb {
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+
+.datetime-range-picker .time-slider input[type=range]:active::-webkit-slider-thumb {
+    background-color: #d4d4d4;
+    box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+    border-color: #adadad;
+}

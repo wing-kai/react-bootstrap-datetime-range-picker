@@ -4,6 +4,7 @@ const gulp       = require('gulp');
 const babel      = require('gulp-babel');
 const plumber    = require('gulp-plumber');
 const notify     = require('gulp-notify');
+const minifyCss  = require('gulp-minify-css'); // css压缩
 const rename     = require('gulp-rename');
 const uglify     = require('gulp-uglify');
 const sourcemaps = require('gulp-sourcemaps');
@@ -67,9 +68,13 @@ gulp.task('script', () => (
     })).pipe(gulp.dest('lib'))
 ));
 
+gulp.task('stylesheet', () => (
+    gulp.src('./src/**/*.css').pipe(minifyCss()).pipe(gulp.dest('./dist'))
+));
+
 gulp.task('watch', () => {
     gulp.watch(['./src/**/*.js', './src/**/*.jsx'], ['script', 'bundle']);
 });
 
-gulp.task('deploy', ['script', 'bundle', 'uglify']);
-gulp.task('default', ['script', 'bundle', 'watch']);
+gulp.task('deploy', ['stylesheet', 'script', 'bundle', 'uglify']);
+gulp.task('default', ['stylesheet', 'script', 'bundle', 'watch']);
