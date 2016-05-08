@@ -73,7 +73,7 @@ gulp.task('stylesheet', () => (
 ));
 
 gulp.task('watch', () => {
-    gulp.watch(['./src/**/*.js', './src/**/*.jsx'], ['script', 'bundle']);
+    gulp.watch(['./src/**/*.js', './src/**/*.jsx', './src/**/*.css'], ['stylesheet', 'script', 'bundle']);
 });
 
 gulp.task('deploy', ['stylesheet', 'script', 'bundle', 'uglify']);

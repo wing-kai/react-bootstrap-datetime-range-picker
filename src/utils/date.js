@@ -24,12 +24,12 @@ const dateFormat = (originDate, format = 'yyyy-MM-dd') => {
     return format;
 }
 
-const getDate = (base = new Date(), offset = false, format = 'yyyy-MM-dd') => {
+const getDate = (base = new Date(), offset = false) => {
     const now = new Date(base);
     const offsetTime = parseInt(offset === false ? now : offset) * 24 * 60 * 60 * 1000 || 0;
     const newDate = now.getTime() + offsetTime;
 
-    return dateFormat(newDate, format);
+    return new Date(newDate);
 };
 
 module.exports = {
