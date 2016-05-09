@@ -14,7 +14,9 @@ class Body extends Component {
     }
 
     render() {
-        <DateTimeRangePicker onChange={this.handleChange} />
+        return (
+            <DateTimeRangePicker onChange={this.handleChange} />
+        );
     }
 }
 ```
