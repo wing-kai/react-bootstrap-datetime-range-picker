@@ -26,6 +26,23 @@
     color: #000
 }
 
+.datetime-range-picker table.calendar td.today {
+    position: relative;
+}
+
+.datetime-range-picker table.calendar td.today:before {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    border: solid 5px rgba(0, 0, 0, 0);
+    border-top: solid 5px #5cb85c;
+    border-right: solid 5px #5cb85c;
+    height: 0;
+    width: 0;
+}
+
 .datetime-range-picker .switch-month {
     cursor: pointer;
 }

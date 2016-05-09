@@ -42,6 +42,7 @@ const DateBlock = React.createClass({
         className += (this.props.isSelected ? " selecting" : "");
         className += (this.props.isBeginTime ? " is-begin-time" : "");
         className += (this.props.isEndTime ? " is-end-time" : "");
+        className += (Util.dateFormat(this.props.date) === Util.dateFormat(new Date()) ? " today" : "");
 
         let otherProps = this.props.disabled ? {} : {
             onClick: () => this.props.onClick(this.props.date)
