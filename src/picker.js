@@ -34,16 +34,12 @@ const DateBlock = React.createClass({
         };
     },
 
-    getInitialState() {
-        return {};
-    },
-
     render() {
         const showDate = this.props.date.getDate();
         const showDateMonth = this.props.date.getMonth();
 
         let className = this.props.disabled ? "disabled" : showDateMonth !== this.props.month ? "not-this-month-date" : "";
-        className += (this.props.selecting ? " selecting" : "");
+        className += (this.props.isSelected ? " selecting" : "");
         className += (this.props.isBeginTime ? " is-begin-time" : "");
         className += (this.props.isEndTime ? " is-end-time" : "");
 
@@ -52,7 +48,7 @@ const DateBlock = React.createClass({
         }
 
         if (this.props.selecting) {
-            otherProps.onMouseHover = this.props.onHover;
+            otherProps.onMouseEnter = event => this.props.onMouseEnter(this.props.date);
         }
 
         return (
@@ -96,22 +92,23 @@ const Calendar = props => {
         const isBeginTimeBlock = Util.dateFormat(blockTime) === Util.dateFormat(props.beginTime);
         const isEndTimeBlock   = Util.dateFormat(blockTime) === Util.dateFormat(props.endTime);
 
-        let selecting = false;
+        let isSelected = false;
 
         if (!isBeginTimeBlock && !isEndTimeBlock) {
-            selecting = blockTime > props.beginTime.getTime() && blockTime < props.endTime.getTime();
+            isSelected = (blockTime > props.beginTime.getTime() && blockTime < props.endTime.getTime());
         }
 
         return (
             <DateBlock
                 key={i}
                 date={date}
-                selecting={selecting}
+                month={props.inMonth}
+                isSelected={isSelected}
+                selecting={props.selecting}
                 isBeginTime={isBeginTimeBlock}
                 isEndTime={isEndTimeBlock}
-                month={props.inMonth}
                 onClick={props.onClickDate}
-                onHover={props.onHover}
+                onMouseEnter={props.onMouseEnter}
             />
         );
     }
@@ -161,8 +158,8 @@ const PickerBody = React.createClass({
                 top: 0,
                 left: 0
             },
-            beginTime: '∞',
-            endTime: '∞'
+            beginTime: INFINITE,
+            endTime: INFINITE
         };
     },
 
@@ -171,6 +168,9 @@ const PickerBody = React.createClass({
 
         const beginTimeFullYear = beginTime.getFullYear();
         const beginTimeMonth = beginTime.getMonth();
+
+        const endTimeFullYear = endTime.getFullYear();
+        const endTimeMonth = endTime.getMonth();
 
         return {
             beginTime: this.props.beginTime,
@@ -183,11 +183,12 @@ const PickerBody = React.createClass({
                 maxMonth: beginTimeMonth
             },
             calendar2: {
-                inYear: beginTimeFullYear + (beginTimeMonth === 11 ? 1 : 0),
-                inMonth: beginTimeMonth === 11 ? 0 : beginTimeMonth + 1,
+                inYear: endTimeFullYear + (beginTimeMonth === endTimeMonth && beginTimeFullYear === endTimeFullYear && beginTimeMonth === 11 ? 1 : 0),
+                inMonth: beginTimeFullYear === endTimeFullYear ? (beginTimeMonth === 11 ? 0 : endTimeMonth + 1) : endTimeMonth,
                 minYear: beginTimeFullYear + (beginTimeMonth === 11 ? 1 : 0),
                 minMonth: beginTimeMonth === 11 ? 0 : beginTimeMonth + 1
-            }
+            },
+            noEndTime: false
         };
     },
 
@@ -211,7 +212,7 @@ const PickerBody = React.createClass({
                             endTime={this.state.endTime}
                             onClickDate={date => this.handleClickDate('first', date)}
                             selecting={this.state.selecting}
-                            onHover={this.handleHoverDate}
+                            onMouseEnter={this.handleMouseEnterDate}
                             handleClickPreviousMonth={() => this.handleClickPreviousMonth('first')}
                             handleClickNextMonth={() => this.handleClickNextMonth('first')}
                             {...this.state.calendar1}
@@ -225,7 +226,7 @@ const PickerBody = React.createClass({
                             endTime={this.state.endTime}
                             onClickDate={date => this.handleClickDate('second', date)}
                             selecting={this.state.selecting}
-                            onHover={this.handleHoverDate}
+                            onMouseEnter={this.handleMouseEnterDate}
                             handleClickPreviousMonth={() => this.handleClickPreviousMonth('second')}
                             handleClickNextMonth={() => this.handleClickNextMonth('second')}
                             {...this.state.calendar2}
@@ -250,52 +251,45 @@ const PickerBody = React.createClass({
 
     handleClickDate(index, date) {
         const originState = this.state;
+        const activeCalender = index === 'first' ? 'calendar1' : 'calendar2';
 
-        let newState = {
-            selecting: !originState.selecting,
-            beginTime: originState.selecting ? originState.beginTime : date,
-            endTime: originState.selecting ? date : originState.endTime,
-        };
+        let newState = {};
 
-        const newBeginTimeFullYear = newState.beginTime.getFullYear();
-        const newBeginTimeMonth = newState.beginTime.getMonth();
-        const newEndTimeFullYear = newState.endTime.getFullYear();
-        const newEndTimeMonth = newState.endTime.getMonth();
-
-        if (index === 'first') {
-            newState.calendar2 = {
-                ...originState.calendar2,
-                minYear: newBeginTimeMonth === 11 ? newBeginTimeFullYear + 1 : newBeginTimeFullYear,
-                minMonth: newBeginTimeMonth === 11 ? 0 : newBeginTimeMonth
+        if (!originState.selecting) {
+            newState = {
+                ...newState,
+                selecting: true,
+                beginTime: date,
+                endTime: date
             };
+        }
 
-            if (
-                new Date(originState.calendar2.inYear + '-' + (originState.calendar2.inMonth + 1)).getTime() <
-                new Date(newState.calendar2.minYear + '-' + (newState.calendar2.minMonth + 1)).getTime()
-            ) {
-                newState.calendar2.inYear = newState.calendar2.minYear;
-                newState.calendar2.inMonth = newState.calendar2.minMonth;
+        if (originState.selecting) {
+            if (date.getTime() < originState.beginTime.getTime()) {
+                newState = {
+                    ...newState,
+                    beginTime: date,
+                    endTime: date
+                };
+            } else {
+                newState = {
+                    ...newState,
+                    selecting: false,
+                    endTime: date
+                };
             }
-        } else {
-            newState.calendar1 = {
-                ...originState.calendar1,
-                maxYear: newEndTimeMonth === 0 ? (newEndTimeFullYear - 1) : newEndTimeFullYear,
-                maxMonth: newEndTimeMonth === 0 ? 11 : newEndTimeMonth - 1,
-            };
+        }
 
-            if (
-                new Date(originState.calendar1.inYear + '-' + (originState.calendar1.inMonth + 1)).getTime() >
-                new Date(newState.calendar1.maxYear + '-' + (newState.calendar1.maxMonth + 1)).getTime()
-            ) {
-                newState.calendar1.inYear = newState.calendar1.maxYear;
-                newState.calendar1.inMonth = newState.calendar1.maxMonth;
-            }
+        if (date.getMonth() < originState[activeCalender].inMonth) {
+            this.handleClickPreviousMonth(index);
+        } else if (date.getMonth() > originState[activeCalender].inMonth) {
+            this.handleClickNextMonth(index);
         }
 
         this.setState(newState);
     },
 
-    handleHoverDate(date) {
+    handleMouseEnterDate(date) {
         if (date.getTime() > this.state.beginTime.getTime()) {
             return this.setState({
                 endTime: new Date(date)
@@ -308,33 +302,86 @@ const PickerBody = React.createClass({
     },
 
     handleClickPreviousMonth(index) {
-        const calendar = index === 'first' ? 'calendar1' : 'calendar2';
-        const { inMonth, inYear } = this.state[calendar];
-        this.setState({
-            [calendar]: {
-                ...this.state[calendar],
+        const activeCalender = index === 'first' ? 'calendar1' : 'calendar2'
+        const { inMonth, inYear } = this.state[activeCalender];
+
+        let newState = {
+            [activeCalender]: {
+                ...this.state[activeCalender],
                 inMonth: inMonth === 0 ? 11 : inMonth - 1,
-                inYear: inMonth === 0 ? inYear - 1 : inYear
+                inYear: inYear - (inMonth === 0 ? 1 : 0)
             }
-        });
+        };
+
+        if (activeCalender === 'calendar1') {
+            newState.calendar2 = {
+                ...this.state.calendar2,
+                minMonth: newState.calendar1.inMonth === 11 ? 0 : newState.calendar1.inMonth + 1,
+                minYear: newState.calendar1.inYear + (newState.calendar1.inMonth === 11 ? 1 : 0)
+            };
+        } else {
+            newState.calendar1 = {
+                ...this.state.calendar1,
+                maxMonth: newState.calendar2.inMonth === 0 ? 11 : newState.calendar2.inMonth - 1,
+                maxYear: newState.calendar2.inYear - (newState.calendar2.inMonth === 0 ? 1 : 0)
+            };
+        }
+
+        if (
+            new Date(newState.calendar1.inYear + '-' + newState.calendar1.inMonth).getTime() >
+            new Date(newState.calendar1.maxYear + '-' + newState.calendar1.maxMonth).getTime()
+            ||
+            new Date(newState.calendar2.inYear + '-' + newState.calendar2.inMonth).getTime() <
+            new Date(newState.calendar2.minYear + '-' + newState.calendar2.minMonth).getTime()
+        ) {
+            return;
+        }
+
+        return this.setState(newState);
     },
 
     handleClickNextMonth(index) {
-        const calendar = index === 'first' ? 'calendar1' : 'calendar2';
-        const { inMonth, inYear } = this.state[calendar];
-        this.setState({
-            [calendar]: {
-                ...this.state[calendar],
+        const activeCalender = index === 'first' ? 'calendar1' : 'calendar2'
+        const { inMonth, inYear } = this.state[activeCalender];
+
+        let newState = {
+            [activeCalender]: {
+                ...this.state[activeCalender],
                 inMonth: inMonth === 11 ? 0 : inMonth + 1,
                 inYear: inMonth === 11 ? inYear + 1 : inYear
             }
-        });
+        }
+
+        if (activeCalender === 'calendar1') {
+            newState.calendar2 = {
+                ...this.state.calendar2,
+                minMonth: newState.calendar1.inMonth === 11 ? 0 : newState.calendar1.inMonth + 1,
+                minYear: newState.calendar1.inYear + (newState.calendar1.inMonth === 11 ? 1 : 0)
+            }
+        } else {
+            newState.calendar1 = {
+                ...this.state.calendar1,
+                maxMonth: newState.calendar2.inMonth === 0 ? 11 : newState.calendar2.inMonth - 1,
+                maxYear: newState.calendar2.inYear - (newState.calendar2.inMonth === 0 ? 1 : 0)
+            }
+        }
+
+        if (
+            new Date(newState.calendar1.inYear + '-' + newState.calendar1.inMonth).getTime() >
+            new Date(newState.calendar1.maxYear + '-' + newState.calendar1.maxMonth).getTime()
+            ||
+            new Date(newState.calendar2.inYear + '-' + newState.calendar2.inMonth).getTime() <
+            new Date(newState.calendar2.minYear + '-' + newState.calendar2.minMonth).getTime()
+        ) {
+            return;
+        }
+
+        this.setState(newState);
     },
 });
 
 const PickerTrigger = React.createClass({
     getDefaultProps() {
-
         const now = new Date();
 
         const beginTimeStr = Util.dateFormat(

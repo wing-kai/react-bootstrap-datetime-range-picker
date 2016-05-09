@@ -9,7 +9,6 @@
     border: none !important;
 }
 
-.datetime-range-picker table.calendar th.disabled,
 .datetime-range-picker table.calendar td.disabled {
     color: #ddd;
     cursor: not-allowed;
@@ -23,7 +22,7 @@
     cursor: pointer;
 }
 
-.datetime-range-picker table.calendar td:not(.disabled):hover {
+.datetime-range-picker table.calendar td:not(.disabled):not(.is-begin-time):not(.is-end-time):hover {
     color: #000
 }
 
@@ -35,24 +34,26 @@
     color: #aaa;
 }
 
-.datetime-range-picker .switch-month.disabled {
+.datetime-range-picker th.disabled .switch-month {
     display: none;
 }
 
 .datetime-range-picker td.is-begin-time {
-    background-color: red;
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
+    background: #337ab7;
+    color: #fff;
 }
 
 .datetime-range-picker td.is-end-time {
-    background-color: red;
     border-top-right-radius: 6px;
     border-bottom-right-radius: 6px;
+    background: #337ab7;
+    color: #fff;
 }
 
 .datetime-range-picker td.selecting {
-    background-color: #FF9A9A;
+    background-color: #B5DBFB;
 }
 
 .datetime-range-picker .time-slider {
