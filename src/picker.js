@@ -165,17 +165,25 @@ const PickerBody = React.createClass({
     },
 
     getInitialState() {
-        const { beginTime, endTime } = this.props;
+        let { beginTime, endTime } = this.props;
 
         const beginTimeFullYear = beginTime.getFullYear();
         const beginTimeMonth = beginTime.getMonth();
+
+        let initialState = { noEndTime: false };
+
+        if (endTime === INFINITE) {
+            endTime = new Date(beginTime.getTime() + 1000);
+            initialState.noEndTime = true;
+        }
 
         const endTimeFullYear = endTime.getFullYear();
         const endTimeMonth = endTime.getMonth();
 
         return {
-            beginTime: this.props.beginTime,
-            endTime: this.props.endTime,
+            ...initialState,
+            beginTime,
+            endTime,
             selecting: false,
             calendar1: {
                 inYear: beginTimeFullYear,
@@ -188,13 +196,14 @@ const PickerBody = React.createClass({
                 inMonth: beginTimeFullYear === endTimeFullYear ? (beginTimeMonth === 11 ? 0 : endTimeMonth + 1) : endTimeMonth,
                 minYear: beginTimeFullYear + (beginTimeMonth === 11 ? 1 : 0),
                 minMonth: beginTimeMonth === 11 ? 0 : beginTimeMonth + 1
-            },
-            noEndTime: false
+            }
         };
     },
 
     render() {
         const thisProps = this.props;
+
+        const noOutline = {outline: 'none'};
         const style = {
             top: thisProps.position.top,
             left: thisProps.position.left,
@@ -203,6 +212,8 @@ const PickerBody = React.createClass({
             padding: 10
         };
 
+        const renderEndTime = this.state.noEndTime ? new Date('2099-12-31 23:59:59') : this.state.endTime;
+
         return (
             <div className="dropdown-menu datetime-range-picker" style={style}>
                 <div className="row">
@@ -210,7 +221,7 @@ const PickerBody = React.createClass({
                         <Calendar
                             index="first"
                             beginTime={this.state.beginTime}
-                            endTime={this.state.endTime}
+                            endTime={renderEndTime}
                             onClickDate={date => this.handleClickDate('first', date)}
                             selecting={this.state.selecting}
                             onMouseEnter={this.handleMouseEnterDate}
@@ -224,7 +235,7 @@ const PickerBody = React.createClass({
                         <Calendar
                             index="second"
                             beginTime={this.state.beginTime}
-                            endTime={this.state.endTime}
+                            endTime={renderEndTime}
                             onClickDate={date => this.handleClickDate('second', date)}
                             selecting={this.state.selecting}
                             onMouseEnter={this.handleMouseEnterDate}
@@ -232,17 +243,27 @@ const PickerBody = React.createClass({
                             handleClickNextMonth={() => this.handleClickNextMonth('second')}
                             {...this.state.calendar2}
                         />
-                        <TimePicker index='clock2' endTime={this.state.endTime} onChange={this.handleChangeTime} />
+                        <TimePicker
+                            index='clock2'
+                            endTime={renderEndTime}
+                            onChange={this.handleChangeTime}
+                        />
                     </div>
                 </div>
                 <hr/>
                 <div className="row">
                     <div className="col-xs-12">
-                        <button className="btn btn-default btn-sm">无截止日期</button>
+                        <button
+                            style={noOutline}
+                            className={"btn btn-default btn-sm" + (this.state.noEndTime ? ' active' : '')}
+                            onClick={this.handleToggleEndTimeLimit}
+                        >
+                            无截止日期
+                        </button>
                         <span className="pull-right">
-                            <button className="btn btn-default btn-sm">取消</button>
+                            <button style={noOutline} className="btn btn-default btn-sm" onClick={this.props.onCancel}>取消</button>
                             {' '}
-                            <button className="btn btn-success btn-sm">应用</button>
+                            <button style={noOutline} className="btn btn-success btn-sm" onClick={this.props.onConfirm}>应用</button>
                         </span>
                     </div>
                 </div>
@@ -298,6 +319,8 @@ const PickerBody = React.createClass({
             };
         }
 
+        newState.noEndTime = false;
+
         this.setState(newState, () => {
             this.props.updateValue(this.state.beginTime, this.state.endTime);
         });
@@ -306,14 +329,16 @@ const PickerBody = React.createClass({
     handleMouseEnterDate(date) {
         if (date.getTime() > this.state.beginTime.getTime()) {
             return this.setState({
-                endTime: new Date(Util.dateFormat(date, 'yyyy-MM-dd') + Util.dateFormat(this.state.endTime, ' hh:mm:ss'))
+                endTime: new Date(Util.dateFormat(date, 'yyyy-MM-dd') + Util.dateFormat(this.state.endTime, ' hh:mm:ss')),
+                noEndTime: false
             }, () => {
                 this.props.updateValue(this.state.beginTime, this.state.endTime);
             });
         }
 
         return this.setState({
-            endTime: this.state.beginTime
+            endTime: this.state.beginTime,
+            noEndTime: false
         }, () => {
             this.props.updateValue(this.state.beginTime, this.state.endTime);
         });
@@ -409,6 +434,7 @@ const PickerBody = React.createClass({
             newState = {
                 beginTime: this.state.beginTime,
                 endTime: new Date(Util.dateFormat(this.state.endTime, 'yyyy-MM-dd') + ' ' + timeStr),
+                noEndTime: false
             }
         }
 
@@ -418,6 +444,14 @@ const PickerBody = React.createClass({
 
         this.setState(newState, () => {
             this.props.updateValue(this.state.beginTime, this.state.endTime);
+        });
+    },
+
+    handleToggleEndTimeLimit() {
+        this.setState({
+            noEndTime: !this.state.noEndTime
+        }, () => {
+            this.props.updateValue(this.state.beginTime, this.state.noEndTime ? 'Infinite' : this.state.endTime);
         });
     }
 });
@@ -454,7 +488,7 @@ const PickerTrigger = React.createClass({
         }
 
         return {
-            showPicker: true,
+            showPicker: false,
             beginTime,
             endTime
         };
@@ -466,7 +500,10 @@ const PickerTrigger = React.createClass({
     },
 
     render() {
-        const timeString = Util.dateFormat(this.state.beginTime, 'yyyy-MM-dd hh:mm:ss') + ' ~ ' + Util.dateFormat(this.state.endTime, 'yyyy-MM-dd hh:mm:ss');
+        const timeString =
+            Util.dateFormat(this.state.beginTime, 'yyyy-MM-dd hh:mm:ss')
+            + ' ~ '
+            + (this.state.endTime === INFINITE ? '∞' : Util.dateFormat(this.state.endTime, 'yyyy-MM-dd hh:mm:ss'));
 
         if (this.props.elementType === 'input') {
             return (
@@ -490,8 +527,10 @@ const PickerTrigger = React.createClass({
     },
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.showPicker !== this.state.showPicker)
+        if (!prevState.showPicker)
             this.renderBody();
+        else if (!this.state.showPicker)
+            ReactDOM.unmountComponentAtNode(this.wrap);
     },
 
     renderBody() {
@@ -507,7 +546,9 @@ const PickerTrigger = React.createClass({
             position,
             beginTime,
             endTime,
-            updateValue: this.handleUpdateValue
+            updateValue: this.handleUpdateValue,
+            onCancel: this.handleClickCancel,
+            onConfirm: this.handleClickConfirm
         };
 
         ReactDOM.render(<PickerBody {...props} />, this.wrap);
@@ -520,7 +561,7 @@ const PickerTrigger = React.createClass({
 
     handleClickTrigger() {
         this.setState({
-            showPicker: !this.state.showPicker
+            showPicker: true
         });
     },
 
@@ -528,6 +569,20 @@ const PickerTrigger = React.createClass({
         this.setState({
             beginTime,
             endTime
+        });
+    },
+
+    handleClickCancel() {
+        ReactDOM.unmountComponentAtNode(this.wrap);
+        this.setState(this.getInitialState())
+    },
+
+    handleClickConfirm() {
+        ReactDOM.unmountComponentAtNode(this.wrap);
+        this.setState({
+            showPicker: false
+        }, () => {
+            this.props.onChange(this.state.beginTime, this.state.endTime);
         });
     }
 });
