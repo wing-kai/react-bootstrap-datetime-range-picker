@@ -218,7 +218,7 @@ const PickerBody = React.createClass({
                             handleClickNextMonth={() => this.handleClickNextMonth('first')}
                             {...this.state.calendar1}
                         />
-                        <TimePicker />
+                        <TimePicker index='clock1' beginTime={this.state.beginTime} onChange={this.handleChangeTime} />
                     </div>
                     <div className="col-xs-6">
                         <Calendar
@@ -232,7 +232,7 @@ const PickerBody = React.createClass({
                             handleClickNextMonth={() => this.handleClickNextMonth('second')}
                             {...this.state.calendar2}
                         />
-                        <TimePicker />
+                        <TimePicker index='clock2' endTime={this.state.endTime} onChange={this.handleChangeTime} />
                     </div>
                 </div>
                 <hr/>
@@ -256,27 +256,31 @@ const PickerBody = React.createClass({
 
         let newState = {};
 
+        const newDate = Util.dateFormat(date, 'yyyy-MM-dd');
+        const newBeginTime = new Date(newDate + Util.dateFormat(originState.beginTime, ' hh:mm:ss'));
+        const newEndTime = new Date(newDate + Util.dateFormat(originState.endTime, ' hh:mm:ss'));
+
         if (!originState.selecting) {
             newState = {
                 ...newState,
                 selecting: true,
-                beginTime: date,
-                endTime: date
+                beginTime: newBeginTime,
+                endTime: newEndTime
             };
         }
 
         if (originState.selecting) {
-            if (date.getTime() < originState.beginTime.getTime()) {
+            if (date.getTime() < new Date(Util.dateFormat(originState.beginTime, 'yyyy-MM-dd 00:00:00')).getTime()) {
                 newState = {
                     ...newState,
-                    beginTime: date,
-                    endTime: date
+                    beginTime: newBeginTime,
+                    endTime: newEndTime
                 };
             } else {
                 newState = {
                     ...newState,
                     selecting: false,
-                    endTime: date
+                    endTime: newEndTime
                 };
             }
         }
@@ -287,18 +291,31 @@ const PickerBody = React.createClass({
             this.handleClickNextMonth(index);
         }
 
-        this.setState(newState);
+        if (newBeginTime.getTime() === newEndTime.getTime()) {
+            newState = {
+                ...newState,
+                endTime: new Date(newState.endTime.getTime() + 1000)
+            };
+        }
+
+        this.setState(newState, () => {
+            this.props.updateValue(this.state.beginTime, this.state.endTime);
+        });
     },
 
     handleMouseEnterDate(date) {
         if (date.getTime() > this.state.beginTime.getTime()) {
             return this.setState({
-                endTime: new Date(date)
+                endTime: new Date(Util.dateFormat(date, 'yyyy-MM-dd') + Util.dateFormat(this.state.endTime, ' hh:mm:ss'))
+            }, () => {
+                this.props.updateValue(this.state.beginTime, this.state.endTime);
             });
         }
 
         return this.setState({
             endTime: this.state.beginTime
+        }, () => {
+            this.props.updateValue(this.state.beginTime, this.state.endTime);
         });
     },
 
@@ -379,6 +396,30 @@ const PickerBody = React.createClass({
 
         this.setState(newState);
     },
+
+    handleChangeTime(index, timeStr) {
+        let newState = {};
+
+        if (index === 'clock1') {
+            newState = {
+                beginTime: new Date(Util.dateFormat(this.state.beginTime, 'yyyy-MM-dd') + ' ' + timeStr),
+                endTime: this.state.endTime
+            };
+        } else {
+            newState = {
+                beginTime: this.state.beginTime,
+                endTime: new Date(Util.dateFormat(this.state.endTime, 'yyyy-MM-dd') + ' ' + timeStr),
+            }
+        }
+
+        if (newState.beginTime.getTime() > newState.endTime.getTime()) {
+            newState.endTime = new Date(newState.beginTime.getTime() + 1000);
+        }
+
+        this.setState(newState, () => {
+            this.props.updateValue(this.state.beginTime, this.state.endTime);
+        });
+    }
 });
 
 const PickerTrigger = React.createClass({
@@ -425,6 +466,8 @@ const PickerTrigger = React.createClass({
     },
 
     render() {
+        const timeString = Util.dateFormat(this.state.beginTime, 'yyyy-MM-dd hh:mm:ss') + ' ~ ' + Util.dateFormat(this.state.endTime, 'yyyy-MM-dd hh:mm:ss');
+
         if (this.props.elementType === 'input') {
             return (
                 <input
@@ -432,13 +475,13 @@ const PickerTrigger = React.createClass({
                     onClick={this.handleClickTrigger}
                     className="input form-control"
                     type="text"
-                    defaultValue={this.props.value}
+                    value={timeString}
                 />
             );
         }
 
         return (
-            <button ref='trigger' onClick={this.handleClickTrigger} className="btn btn-default">{this.props.value}</button>
+            <button ref='trigger' onClick={this.handleClickTrigger} className="btn btn-default">{timeString}</button>
         );
     },
 
@@ -446,8 +489,9 @@ const PickerTrigger = React.createClass({
         this.renderBody();
     },
 
-    componentDidUpdate() {
-        this.renderBody();
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.showPicker !== this.state.showPicker)
+            this.renderBody();
     },
 
     renderBody() {
@@ -462,7 +506,8 @@ const PickerTrigger = React.createClass({
             show: this.state.showPicker,
             position,
             beginTime,
-            endTime
+            endTime,
+            updateValue: this.handleUpdateValue
         };
 
         ReactDOM.render(<PickerBody {...props} />, this.wrap);
@@ -477,8 +522,14 @@ const PickerTrigger = React.createClass({
         this.setState({
             showPicker: !this.state.showPicker
         });
+    },
+
+    handleUpdateValue(beginTime, endTime) {
+        this.setState({
+            beginTime,
+            endTime
+        });
     }
 });
 
-// do not use 'export default Picker'
 module.exports = PickerTrigger;
