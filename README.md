@@ -1,4 +1,4 @@
-# React-Bootstrap-Datetime-Range-Picker
+# React Bootstrap Date&Time Range Picker [![npm version](https://img.shields.io/npm/v/react-bootstrap-datetimerange-picker.svg?style=flat)](https://www.npmjs.com/package/react-bootstrap-datetimerange-picker)
 
 ```jsx
 import React, { Component } from 'react';
