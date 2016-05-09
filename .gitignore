@@ -2,3 +2,4 @@ node_modules
 demo.js
 lib
 dist
+npm-debug.log
