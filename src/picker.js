@@ -1,5 +1,4 @@
 const React = require('react');
-const ReactDOM = require('react-dom');
 const Util = require('./utils');
 
 const TimePicker = require('./timepicker');
@@ -205,8 +204,6 @@ const PickerBody = React.createClass({
 
         const noOutline = {outline: 'none'};
         const style = {
-            top: thisProps.position.top,
-            left: thisProps.position.left,
             display: thisProps.show ? 'block' : 'none',
             width: 560,
             padding: 10
@@ -482,11 +479,6 @@ const PickerTrigger = React.createClass({
         };
     },
 
-    componentWillMount() {
-        this.wrap = document.createElement('div');
-        document.body.appendChild(this.wrap);
-    },
-
     componentWillReceiveProps(nextProps) {
         this.setState({
             ...this.validate(nextProps.beginTime, nextProps.endTime)
@@ -494,34 +486,59 @@ const PickerTrigger = React.createClass({
     },
 
     render() {
+        const { beginTime, endTime } = this.state;
+
         const timeString =
             Util.dateFormat(this.state.beginTime, 'yyyy-MM-dd hh:mm:ss')
             + ' ~ '
-            + (this.state.endTime === INFINITE ? '∞' : Util.dateFormat(this.state.endTime, 'yyyy-MM-dd hh:mm:ss'));
+            + (endTime === INFINITE ? '∞' : Util.dateFormat(endTime, 'yyyy-MM-dd hh:mm:ss'));
+
+        let elementProps = { ...this.props };
+        delete elementProps.beginTime;
+        delete elementProps.endTime;
+        delete elementProps.onChange;
+        delete elementProps.elementType;
+        delete elementProps.type;
+
+        const props = {
+            show: this.state.showPicker,
+            beginTime,
+            endTime,
+            updateValue: this.handleUpdateValue,
+            onCancel: this.handleClickCancel,
+            onConfirm: this.handleClickConfirm
+        };
 
         if (this.props.elementType === 'input') {
             return (
-                <input
-                    ref='trigger'
-                    onClick={this.handleClickTrigger}
-                    type="text"
-                    value={timeString}
-                    className={this.props.className || 'form-control'}
-                    onChange={e => undefined}
-                />
+                <div style={{position:'relative', display: 'inline-block'}}>
+                    <input
+                        {...elementProps}
+                        ref='trigger'
+                        onClick={this.handleClickTrigger}
+                        type="text"
+                        value={timeString}
+                        className={this.props.className || 'form-control'}
+                        onChange={e => undefined}
+                    />
+                    { this.state.showPicker ? (<PickerBody {...props} />) : null }
+                </div>
             );
         }
 
         return (
-            <button ref='trigger' onClick={this.handleClickTrigger} className={this.props.className || 'button btn-default'}>{timeString}</button>
+            <div style={{position:'relative', display: 'inline-block'}}>
+                <button
+                    {...elementProps}
+                    ref='trigger'
+                    onClick={this.handleClickTrigger}
+                    className={this.props.className || 'btn btn-default'}
+                >
+                    {timeString}
+                </button>
+                { this.state.showPicker ? (<PickerBody {...props} />) : null }
+            </div>
         );
-    },
-
-    componentDidUpdate(prevProps, prevState) {
-        if (!prevState.showPicker)
-            this.renderBody();
-        else if (!this.state.showPicker)
-            ReactDOM.unmountComponentAtNode(this.wrap);
     },
 
     validate(b, e) {
@@ -545,32 +562,6 @@ const PickerTrigger = React.createClass({
         };
     },
 
-    renderBody() {
-        const targetBCR = this.refs.trigger.getBoundingClientRect();
-        const position = {
-            top: targetBCR.top + targetBCR.height,
-            left: targetBCR.left
-        };
-        const { beginTime, endTime } = this.state;
-
-        const props = {
-            show: this.state.showPicker,
-            position,
-            beginTime,
-            endTime,
-            updateValue: this.handleUpdateValue,
-            onCancel: this.handleClickCancel,
-            onConfirm: this.handleClickConfirm
-        };
-
-        ReactDOM.render(<PickerBody {...props} />, this.wrap);
-    },
-
-    componentWillUnmount() {
-        ReactDOM.unmountComponentAtNode(this.wrap);
-        document.body.removeChild(this.wrap);
-    },
-
     handleClickTrigger() {
         this.setState({
             showPicker: true
@@ -585,12 +576,10 @@ const PickerTrigger = React.createClass({
     },
 
     handleClickCancel() {
-        ReactDOM.unmountComponentAtNode(this.wrap);
         this.setState(this.getInitialState())
     },
 
     handleClickConfirm() {
-        ReactDOM.unmountComponentAtNode(this.wrap);
         this.setState({
             showPicker: false
         }, () => {

@@ -1,6 +1,6 @@
 {
   "name": "react-bootstrap-datetimerange-picker",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -40,10 +40,10 @@
   },
   "homepage": "https://github.com/wing-kai/react-bootstrap-datetime-range-picker#readme",
   "peerDependencies": {
-    "react": ">=0.14.0",
-    "react-dom": ">=0.14.0"
+    "react": ">=0.14.0"
   },
   "devDependencies": {
+    "react-dom": ">=0.14.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.7.4",
     "babel-plugin-transform-object-rest-spread": "^6.6.5",
     "babel-preset-react": "^6.5.0",
