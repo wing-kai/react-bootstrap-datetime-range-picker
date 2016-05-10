@@ -300,9 +300,17 @@ const PickerBody = React.createClass({
             } else {
                 newState = {
                     ...newState,
+                    beginTime: this.state.beginTime,
                     selecting: false,
                     endTime: newEndTime
                 };
+
+                if (newState.beginTime.getTime() === newState.endTime.getTime()) {
+                    newState = {
+                        ...newState,
+                        endTime: new Date(newState.endTime.getTime() + 1000)
+                    };
+                }
             }
         }
 
@@ -310,13 +318,6 @@ const PickerBody = React.createClass({
             this.handleClickPreviousMonth(index);
         } else if (date.getMonth() > originState[activeCalender].inMonth) {
             this.handleClickNextMonth(index);
-        }
-
-        if (newBeginTime.getTime() === newEndTime.getTime()) {
-            newState = {
-                ...newState,
-                endTime: new Date(newState.endTime.getTime() + 1000)
-            };
         }
 
         newState.noEndTime = false;
@@ -451,7 +452,7 @@ const PickerBody = React.createClass({
         this.setState({
             noEndTime: !this.state.noEndTime
         }, () => {
-            this.props.updateValue(this.state.beginTime, this.state.noEndTime ? 'Infinite' : this.state.endTime);
+            this.props.updateValue(this.state.beginTime, this.state.noEndTime ? INFINITE : this.state.endTime);
         });
     }
 });
@@ -460,43 +461,36 @@ const PickerTrigger = React.createClass({
     getDefaultProps() {
         const now = new Date();
 
-        const beginTimeStr = Util.dateFormat(
-            Util.getDate(now, 0), 'yyyy-MM-dd hh:mm:ss'
-        );
-
-        const endTimeStr = Util.dateFormat(
-            Util.getDate(now, 7), 'yyyy-MM-dd hh:mm:ss'
-        );
+        const beginTime = Util.getDate(now, 0);
+        const endTime = Util.getDate(now, 7);
 
         return {
             elementType: 'input',
-            value: beginTimeStr + ' ~ ' +  endTimeStr,
-            onChange: () => undefined
+            beginTime,
+            endTime,
+            onChange: () => undefined,
+            className: ''
         };
     },
 
     getInitialState() {
-
-        const [ beginTimeStr, endTimeStr ] = this.props.value.match(/\d{4}(\-\d\d){2}\s\d{2}(\:\d\d){2}/g);
-
-        let beginTime = new Date(beginTimeStr);
-        let endTime = new Date(endTimeStr);
-
-        if (String(beginTime) === 'Invalid Date' || (String(endTime) === 'Invalid Date')) {
-            beginTime = new Date();
-            endTime = new Date(Util.getDate(new Date(), 7, 'yyyy-MM-dd hh:mm:ss'));
-        }
+        let { beginTime, endTime } = this.props;
 
         return {
-            showPicker: false,
-            beginTime,
-            endTime
+            ...this.validate(beginTime, endTime),
+            showPicker: false
         };
     },
 
     componentWillMount() {
         this.wrap = document.createElement('div');
         document.body.appendChild(this.wrap);
+    },
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            ...this.validate(nextProps.beginTime, nextProps.endTime)
+        });
     },
 
     render() {
@@ -510,15 +504,16 @@ const PickerTrigger = React.createClass({
                 <input
                     ref='trigger'
                     onClick={this.handleClickTrigger}
-                    className="input form-control"
                     type="text"
                     value={timeString}
+                    className={this.props.className || 'form-control'}
+                    onChange={e => undefined}
                 />
             );
         }
 
         return (
-            <button ref='trigger' onClick={this.handleClickTrigger} className="btn btn-default">{timeString}</button>
+            <button ref='trigger' onClick={this.handleClickTrigger} className={this.props.className || 'button btn-default'}>{timeString}</button>
         );
     },
 
@@ -531,6 +526,27 @@ const PickerTrigger = React.createClass({
             this.renderBody();
         else if (!this.state.showPicker)
             ReactDOM.unmountComponentAtNode(this.wrap);
+    },
+
+    validate(b, e) {
+        let beginTime = b;
+        let endTime = e;
+
+        if (
+            !(beginTime instanceof Date)
+            || !(endTime instanceof Date)
+            || (String(beginTime) === 'Invalid Date')
+            || (String(endTime) === 'Invalid Date')
+            || beginTime.getTime() >= endTime.getTime()
+        ) {
+            beginTime = new Date();
+            endTime = new Date(Util.getDate(new Date(), 7, 'yyyy-MM-dd hh:mm:ss'));
+        }
+
+        return {
+            beginTime,
+            endTime
+        };
     },
 
     renderBody() {
@@ -582,7 +598,7 @@ const PickerTrigger = React.createClass({
         this.setState({
             showPicker: false
         }, () => {
-            this.props.onChange(this.state.beginTime, this.state.endTime);
+            this.props.onChange(this.state.beginTime, this.state.endTime === INFINITE ? 'Infinite' : this.state.endTime);
         });
     }
 });

@@ -1,5 +1,10 @@
-# React Bootstrap Date&Time Range Picker [![npm version](https://img.shields.io/npm/v/react-bootstrap-datetimerange-picker.svg?style=flat)](https://www.npmjs.com/package/react-bootstrap-datetimerange-picker)
+# React Bootstrap Date&Time Range Picker
 
+日期时间范围选择器，支持无结束时间。
+
+[![npm version](https://img.shields.io/npm/v/react-bootstrap-datetimerange-picker.svg?style=flat)](https://www.npmjs.com/package/react-bootstrap-datetimerange-picker)
+
+# Usage
 ```jsx
 import React, { Component } from 'react';
 import DateTimeRangePicker from 'react-bootstrap-datetimerange-picker';
