@@ -4,6 +4,12 @@
 
 [![npm version](https://img.shields.io/npm/v/react-bootstrap-datetimerange-picker.svg?style=flat)](https://www.npmjs.com/package/react-bootstrap-datetimerange-picker)
 
+# Install
+
+```bash
+npm install --save react-bootstrap-datetimerange-picker
+```
+
 # Usage
 ```jsx
 import React, { Component } from 'react';
