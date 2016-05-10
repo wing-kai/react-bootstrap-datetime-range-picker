@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deploy": "rm -rf ./dist; gulp deploy",
     "gulp": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -43,8 +44,8 @@
   },
   "homepage": "https://github.com/wing-kai/react-bootstrap-datetime-range-picker#readme",
   "dependencies": {
-    "react": "^15.0.2",
-    "react-dom": "^15.0.2"
+    "react": ">=14.0.0",
+    "react-dom": ">=14.0.0"
   },
   "devDependencies": {
     "babel-plugin-transform-es2015-modules-commonjs": "^6.7.4",
@@ -60,7 +61,6 @@
     "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.1.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^2.0.0-alpha",
     "gulp-uglify": "^1.5.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"

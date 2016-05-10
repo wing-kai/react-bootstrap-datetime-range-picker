@@ -1,1 +1,1 @@
-module.exports = require('./src/picker');
+module.exports = require('./lib/picker');

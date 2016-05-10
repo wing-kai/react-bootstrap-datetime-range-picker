@@ -6,8 +6,6 @@ const plumber    = require('gulp-plumber');
 const notify     = require('gulp-notify');
 const minifyCss  = require('gulp-minify-css'); // css压缩
 const rename     = require('gulp-rename');
-const uglify     = require('gulp-uglify');
-const sourcemaps = require('gulp-sourcemaps');
 
 const browserify = require('browserify');
 const source     = require('vinyl-source-stream');
@@ -21,18 +19,6 @@ const onError = err => {
         sound: "Beep"
     })(err);
 };
-
-gulp.task('uglify', ['bundle'], () => {
-    gulp.src('./dist/react-drag-selector.js').pipe(uglify({
-        compress: {
-            global_defs: {
-                Selector: false
-            }
-        }
-    })).pipe(rename({
-        suffix: '.min'
-    })).pipe(gulp.dest('dist'));
-});
 
 gulp.task('bundle', ['script'], () => {
     const bundle = browserify({
@@ -76,5 +62,5 @@ gulp.task('watch', () => {
     gulp.watch(['./src/**/*.js', './src/**/*.jsx', './src/**/*.css'], ['stylesheet', 'script', 'bundle']);
 });
 
-gulp.task('deploy', ['stylesheet', 'script', 'bundle', 'uglify']);
+gulp.task('deploy', ['stylesheet', 'script', 'bundle']);
 gulp.task('default', ['stylesheet', 'script', 'bundle', 'watch']);
