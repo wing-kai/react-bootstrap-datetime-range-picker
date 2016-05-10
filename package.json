@@ -1,6 +1,6 @@
 {
   "name": "react-bootstrap-datetimerange-picker",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "url": "https://github.com/wing-kai/react-bootstrap-datetime-range-picker/issues"
   },
   "homepage": "https://github.com/wing-kai/react-bootstrap-datetime-range-picker#readme",
-  "dependencies": {
+  "peerDependencies": {
     "react": ">=14.0.0",
     "react-dom": ">=14.0.0"
   },

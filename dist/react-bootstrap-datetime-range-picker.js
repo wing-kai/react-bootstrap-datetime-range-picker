@@ -568,10 +568,6 @@ const PickerTrigger = React.createClass({
         );
     },
 
-    componentDidMount() {
-        this.renderBody();
-    },
-
     componentDidUpdate(prevProps, prevState) {
         if (!prevState.showPicker) this.renderBody();else if (!this.state.showPicker) ReactDOM.unmountComponentAtNode(this.wrap);
     },
