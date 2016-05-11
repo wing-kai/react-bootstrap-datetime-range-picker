@@ -526,14 +526,16 @@ const PickerTrigger = React.createClass({
     getInitialState() {
         let { beginTime, endTime } = this.props;
 
-        return _extends({}, this.validate(beginTime, endTime), {
+        return _extends({}, this.validator(beginTime, endTime), {
             showPicker: false,
             leftSide: true
         });
     },
 
     componentWillReceiveProps(nextProps) {
-        this.setState(_extends({}, this.validate(nextProps.beginTime, nextProps.endTime)));
+        if (this.props.beginTime.getTime() !== nextProps.beginTime.getTime() || this.props.endTime.getTime() !== nextProps.endTime.getTime()) {
+            this.setState(_extends({}, this.validator(nextProps.beginTime, nextProps.endTime)));
+        }
     },
 
     render() {
@@ -590,7 +592,7 @@ const PickerTrigger = React.createClass({
         );
     },
 
-    validate(b, e) {
+    validator(b, e) {
         let beginTime = b;
         let endTime = e;
 
@@ -706,7 +708,7 @@ const TimePicker = React.createClass({
                     React.createElement(
                         'div',
                         null,
-                        'Minutes:'
+                        '秒钟:'
                     ),
                     '　',
                     React.createElement('input', {
