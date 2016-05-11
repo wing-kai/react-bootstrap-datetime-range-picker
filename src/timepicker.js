@@ -35,7 +35,7 @@ const TimePicker = React.createClass({
                 </div>
                 <div className="row">
                     <div className="col-xs-12 time-slider">
-                        <div>Minutes:</div>
+                        <div>秒钟:</div>
                         {'　'}
                         <input
                             ref='second' type="range"

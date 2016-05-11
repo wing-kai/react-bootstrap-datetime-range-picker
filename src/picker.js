@@ -471,16 +471,21 @@ const PickerTrigger = React.createClass({
         let { beginTime, endTime } = this.props;
 
         return {
-            ...this.validate(beginTime, endTime),
+            ...this.validator(beginTime, endTime),
             showPicker: false,
             leftSide: true
         };
     },
 
     componentWillReceiveProps(nextProps) {
-        this.setState({
-            ...this.validate(nextProps.beginTime, nextProps.endTime)
-        });
+        if (
+            this.props.beginTime.getTime() !== nextProps.beginTime.getTime()
+            || this.props.endTime.getTime() !== nextProps.endTime.getTime()
+        ) {
+            this.setState({
+                ...this.validator(nextProps.beginTime, nextProps.endTime)
+            });
+        }
     },
 
     render() {
@@ -540,7 +545,7 @@ const PickerTrigger = React.createClass({
         );
     },
 
-    validate(b, e) {
+    validator(b, e) {
         let beginTime = b;
         let endTime = e;
 
