@@ -154,10 +154,6 @@ const PickerBody = React.createClass({
     getDefaultProps() {
         return {
             show: false,
-            position: {
-                top: 0,
-                left: 0
-            },
             beginTime: INFINITE,
             endTime: INFINITE
         };
@@ -206,7 +202,8 @@ const PickerBody = React.createClass({
         const style = {
             display: thisProps.show ? 'block' : 'none',
             width: 560,
-            padding: 10
+            padding: 10,
+            ...thisProps.leftSide ? {} : {right: 0, left: 'auto'}
         };
 
         const renderEndTime = this.state.noEndTime ? new Date('2099-12-31 23:59:59') : this.state.endTime;
@@ -475,7 +472,8 @@ const PickerTrigger = React.createClass({
 
         return {
             ...this.validate(beginTime, endTime),
-            showPicker: false
+            showPicker: false,
+            leftSide: true
         };
     },
 
@@ -506,7 +504,8 @@ const PickerTrigger = React.createClass({
             endTime,
             updateValue: this.handleUpdateValue,
             onCancel: this.handleClickCancel,
-            onConfirm: this.handleClickConfirm
+            onConfirm: this.handleClickConfirm,
+            leftSide: this.state.leftSide
         };
 
         if (this.props.elementType === 'input') {
@@ -563,8 +562,14 @@ const PickerTrigger = React.createClass({
     },
 
     handleClickTrigger() {
+        const { left, width } = this.refs.trigger.getBoundingClientRect();
+
+        const a = document.body.clientWidth - left - 570;
+        const b = left + width - 570;
+
         this.setState({
-            showPicker: true
+            showPicker: true,
+            leftSide: b < a
         });
     },
 
