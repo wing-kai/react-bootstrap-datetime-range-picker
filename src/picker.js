@@ -505,6 +505,22 @@ const PickerTrigger = React.createClass({
         delete elementProps.elementType;
         delete elementProps.type;
 
+        const wrapStyle = {
+            position:'relative',
+            display: 'inline-block'
+        };
+
+        if ('style' in elementProps) {
+            if ('display' in elementProps.style) {
+                wrapStyle.display = elementProps.style.display;
+                delete elementProps.style.display;
+            }
+            if ('position' in elementProps.style) {
+                wrapStyle.position = elementProps.style.position;
+                delete elementProps.style.position;
+            }
+        }
+
         const props = {
             show: this.state.showPicker,
             beginTime,
@@ -517,7 +533,7 @@ const PickerTrigger = React.createClass({
 
         if (this.props.elementType === 'input') {
             return (
-                <div style={{position:'relative', display: 'block'}}>
+                <div style={wrapStyle}>
                     <input
                         {...elementProps}
                         ref='trigger'
@@ -533,7 +549,7 @@ const PickerTrigger = React.createClass({
         }
 
         return (
-            <div style={{position:'relative', display: 'block'}}>
+            <div style={{position:'relative', display: 'inline-block'}}>
                 <button
                     {...elementProps}
                     ref='trigger'
