@@ -6,13 +6,23 @@ class Main extends Component {
         super(props);
 
         this.handleChange = (beginTime, endTime) => {
-            console.log('handleChange', beginTime, endTime);
+            this.setState({
+                begin: beginTime,
+                end: endTime
+            });
+        }
+
+        const now = new Date();
+
+        this.state = {
+            begin: now,
+            end: 'Infinite'
         }
     }
 
     render() {
         return (
-            <DateTimeRangePicker onChange={this.handleChange} />
+            <DateTimeRangePicker onChange={this.handleChange} beginTime={this.state.begin} endTime={this.state.end} />
         );
     }
 }

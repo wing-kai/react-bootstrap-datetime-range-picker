@@ -470,6 +470,8 @@ const PickerTrigger = React.createClass({
     getInitialState() {
         let { beginTime, endTime } = this.props;
 
+        endTime = endTime === 'Infinite' ? INFINITE : endTime;
+
         return {
             ...this.validator(beginTime, endTime),
             showPicker: false,
@@ -515,7 +517,7 @@ const PickerTrigger = React.createClass({
 
         if (this.props.elementType === 'input') {
             return (
-                <div style={{position:'relative', display: 'inline-block'}}>
+                <div style={{position:'relative', display: 'block'}}>
                     <input
                         {...elementProps}
                         ref='trigger'
@@ -531,7 +533,7 @@ const PickerTrigger = React.createClass({
         }
 
         return (
-            <div style={{position:'relative', display: 'inline-block'}}>
+            <div style={{position:'relative', display: 'block'}}>
                 <button
                     {...elementProps}
                     ref='trigger'
@@ -549,21 +551,25 @@ const PickerTrigger = React.createClass({
         let beginTime = b;
         let endTime = e;
 
-        if (
-            !(beginTime instanceof Date)
-            || !(endTime instanceof Date)
-            || (String(beginTime) === 'Invalid Date')
-            || (String(endTime) === 'Invalid Date')
-            || beginTime.getTime() >= endTime.getTime()
-        ) {
-            beginTime = new Date();
-            endTime = new Date(Util.getDate(new Date(), 7, 'yyyy-MM-dd hh:mm:ss'));
+        if (beginTime instanceof Date && String(beginTime) !== 'Invalid Date') {
+            if (endTime instanceof Date && String(endTime) !== 'Invalid Date') {
+                if (beginTime.getTime() < endTime.getTime()) {
+                    return {
+                        beginTime, endTime
+                    }
+                }
+            } else if (endTime === INFINITE || endTime === 'Infinite') {
+                return {
+                    beginTime,
+                    endTime: INFINITE
+                }
+            }
         }
 
         return {
-            beginTime,
-            endTime
-        };
+            beginTime: new Date(),
+            endTime: new Date(Util.getDate(new Date(), 7, 'yyyy-MM-dd hh:mm:ss'))
+        }
     },
 
     handleClickTrigger() {
