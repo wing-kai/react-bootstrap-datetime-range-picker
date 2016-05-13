@@ -480,13 +480,22 @@ const PickerTrigger = React.createClass({
     },
 
     componentWillReceiveProps(nextProps) {
-        if (
-            this.props.beginTime.getTime() !== nextProps.beginTime.getTime()
-            || this.props.endTime.getTime() !== nextProps.endTime.getTime()
-        ) {
+        if ( this.props.beginTime.getTime() !== nextProps.beginTime.getTime() ) {
             this.setState({
                 ...this.validator(nextProps.beginTime, nextProps.endTime)
             });
+        }
+
+        if (this.props.endTime !== nextProps.endTime ) {
+            if (this.props.endTime === 'Infinite' || nextProps.endTime === 'Infinite') {
+                this.setState({
+                    ...this.validator(nextProps.beginTime, nextProps.endTime)
+                });
+            } else if (this.props.endTime.getTime() !== nextProps.endTime.getTime()) {
+                this.setState({
+                    ...this.validator(nextProps.beginTime, nextProps.endTime)
+                });
+            }
         }
     },
 
