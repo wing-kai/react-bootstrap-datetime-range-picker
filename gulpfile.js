@@ -42,9 +42,9 @@ gulp.task('script', () => (
         errorHandler: onError
     })).pipe(babel({
         compact: false,
-        presets: ["react"],
+        presets: ["react", 'es2015'],
         plugins: [
-            "transform-es2015-modules-commonjs",
+            // "transform-es2015-modules-commonjs",
             "transform-object-rest-spread"
         ]
     })).pipe(plumber({
