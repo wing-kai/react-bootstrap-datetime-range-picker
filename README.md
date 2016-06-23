@@ -4,6 +4,8 @@
 
 [![npm version](https://img.shields.io/npm/v/react-bootstrap-datetimerange-picker.svg?style=flat)](https://www.npmjs.com/package/react-bootstrap-datetimerange-picker)
 
+[view demo](http://wing-kai.github.io/react-bootstrap-datetime-range-picker/)
+
 # Install
 
 ```bash
