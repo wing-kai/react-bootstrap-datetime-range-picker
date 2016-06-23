@@ -35,4 +35,4 @@ class Body extends Component {
 # Todo
 
 - [ ] Support custom Language.
-- [ ] Demo Page.
+- [x] Demo Page.
